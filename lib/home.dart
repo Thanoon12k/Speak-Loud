@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'bluetooth.dart';
+import 'controllers/stt_controller.dart';
 import 'controllers/tts_controller.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class HomeScreen extends StatelessWidget {
   final TextEditingController txtcon = TextEditingController();
-  final TextToSpeechController speakcontroller =
+
+  final TextToSpeechController tts_controller =
       Get.put(TextToSpeechController());
+  final SpeachToTextController stt_controller =
+      Get.put(SpeachToTextController());
 
   HomeScreen({super.key});
 
@@ -56,6 +61,7 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
         ),
+        
         const SizedBox(height: 45),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 25),
@@ -78,20 +84,28 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
         const Expanded(child: Text("")),
-        Image.asset("images/speakers.PNG"),
-        const SizedBox(
-          height: 35,
-        ),
+        Obx(() => stt_controller.is_listeninig.value
+            ? Image.asset("images/talk.PNG")
+            : Image.asset("images/off.PNG")),
+        const SizedBox(height: 35),
+        Obx(() => Text(stt_controller.txttospeaking.value)),
+        const SizedBox(height: 35),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset("images/listen.PNG"),
+            GestureDetector(
+              child: Image.asset("images/listen.PNG"),
+              onTap: () async {
+                print('pressed');
+                await stt_controller.listen();
+              },
+            ),
             const SizedBox(width: 10),
             GestureDetector(
               child: Image.asset("images/talk.PNG"),
               onTap: () async {
                 debugPrint('speaking .. $txtcon.text');
-                await speakcontroller.speak(txtcon.text);
+                await tts_controller.speak(txtcon.text);
               },
             ),
             const SizedBox(width: 10),
