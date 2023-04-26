@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:speak_loud/widgets/google_mic.dart';
 
 import 'controllers/flutter_stt_con.dart';
 import 'controllers/stt_controller.dart';
@@ -10,11 +11,8 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 class HomeScreen extends StatelessWidget {
   final TextEditingController txtcon = TextEditingController();
 
-  final TextToSpeechController tts_controller =
-      Get.put(TextToSpeechController());
-  final SpeachToTextController stt_controller =
-      Get.put(SpeachToTextController());
-  final FlutterSpeechController fstt_con = Get.put(FlutterSpeechController());
+  final TextToSpeechController tts = Get.put(TextToSpeechController());
+  final SpeachToTextController stt = Get.put(SpeachToTextController());
 
   HomeScreen({super.key});
 
@@ -87,7 +85,7 @@ class HomeScreen extends StatelessWidget {
             () => Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                tts_controller.mytext.value,
+                tts.mytext.value,
                 style: const TextStyle(
                   fontSize: 26,
                   color: Colors.purple,
@@ -103,12 +101,17 @@ class HomeScreen extends StatelessWidget {
         const SizedBox(height: 35),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            listner_button(tts_controller: tts_controller, fstt_con: fstt_con),
-          
-            talker_button(tts_controller: tts_controller),
-           
-            // Image.asset("images/off.PNG"),
+          children: const [
+            GoogleIconButton(
+              buttonIcon: Icon(Icons.mic),
+              buttonText: "TALK",
+              handword: "error",
+            ),
+            GoogleIconButton(
+              buttonIcon: Icon(Icons.waving_hand_outlined),
+              buttonText: "MOVE HAND",
+              handword: "Hello",
+            )
           ],
         ),
         const SizedBox(
@@ -119,44 +122,29 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class talker_button extends StatelessWidget {
-  const talker_button({
+class icon_button extends StatelessWidget {
+  const icon_button({
     super.key,
-    required this.tts_controller,
+    required this.buttonicon,
+    required this.buttontext,
   });
 
-  final TextToSpeechController tts_controller;
+  final Icon buttonicon;
+  final String buttontext;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      child: Image.asset("images/talk.PNG"),
-      onTap: () async {
-        tts_controller.mytext.value = "how are you ....";
-        await tts_controller.speak(tts_controller.mytext.value);
-      },
-    );
-  }
-}
-
-class listner_button extends StatelessWidget {
-  const listner_button({
-    super.key,
-    required this.tts_controller,
-    required this.fstt_con,
-  });
-
-  final TextToSpeechController tts_controller;
-  final FlutterSpeechController fstt_con;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      child: Image.asset("images/listen.PNG"),
-      onTap: () async {
-        tts_controller.mytext.value = "speach to text started ...";
-        fstt_con.startListening();
-      },
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.fromLTRB(15, 15, 15, 15),
+          child: IconButton(icon: buttonicon, onPressed: () {}),
+        ),
+        Container(
+          padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
+          child: Text(buttontext),
+        ),
+      ],
     );
   }
 }
