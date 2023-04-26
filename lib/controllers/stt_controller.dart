@@ -1,31 +1,36 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
-import 'package:speech_to_text/speech_to_text.dart';
+import 'package:speech_to_text/speech_recognition_error.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class SpeachToTextController extends GetxController {
-  var is_listeninig = false.obs;
-  var txttospeaking = "press to speak".obs;
-  final SpeechToText _speech = SpeechToText();
+  String lastWords = "";
+  String lastError = "";
+  String lastStatus = "";
+ bool is_available=false;
+ late stt.SpeechToText speech;
 
-  Future<void> listen() async {
-    debugPrint("iam in listeennig${is_listeninig.value}");
-    if (!is_listeninig.value) {
-      bool available = await _speech.initialize(
-        onStatus: (val) {},
-        onError: (val) {},
-      );
+  Future<void> init_stt() async {
+    speech = stt.SpeechToText();
+    bool is_available = await speech.initialize(
+      onStatus: (s) => debugPrint("status : $s"),
+      onError: (e) => debugPrint("status : $e"),
+    );
+  }
 
-      if (available) {
-        is_listeninig.value = true;
-        _speech.listen(onResult: (val) {
-          txttospeaking.value = val.recognizedWords;
-        });
-      }
+void listen(){
+ if (is_available) {
+       speech.listen(onResult: resultListener);
     } else {
-      is_listeninig.value = false;
-      _speech.stop();
-      txttospeaking.value = "";
+      print('error occured i am unavailible');
     }
+    speech.stop();
+  }
+
+  void resultListener(SpeechRecognitionResult result) {
+    lastWords = "${result.recognizedWords} - ${result.finalResult}";
+
+    debugPrint("last: $lastWords "); //print the user's speech on the console
   }
 }

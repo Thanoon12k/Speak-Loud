@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'bluetooth.dart';
+import 'controllers/flutter_stt_con.dart';
 import 'controllers/stt_controller.dart';
 import 'controllers/tts_controller.dart';
+import 'bluetooth.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class HomeScreen extends StatelessWidget {
@@ -13,6 +14,7 @@ class HomeScreen extends StatelessWidget {
       Get.put(TextToSpeechController());
   final SpeachToTextController stt_controller =
       Get.put(SpeachToTextController());
+  final FlutterSpeechController fstt_con = Get.put(FlutterSpeechController());
 
   HomeScreen({super.key});
 
@@ -32,7 +34,7 @@ class HomeScreen extends StatelessWidget {
         actions: const [
           Center(
             child: Text(
-              "Disabled Assistance",
+              "Reach To All",
               style: TextStyle(
                 fontFamily: AutofillHints.birthdayYear,
                 fontWeight: FontWeight.w700,
@@ -61,61 +63,100 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
         ),
-        
         const SizedBox(height: 45),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 25),
-          alignment: Alignment.topCenter,
-          child: TextField(
-            maxLines: 4,
-            controller: txtcon,
-            style: const TextStyle(
-              fontSize: 24,
-              color: Colors.pinkAccent,
-              fontWeight: FontWeight.w700,
+          width: 350,
+          height: 400,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10.0),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: Offset(0, 3), // changes position of shadow
+              ),
+            ],
+            border: Border.all(
+              color: Colors.grey.withOpacity(0.5),
+              width: 1.0,
             ),
-            textInputAction: TextInputAction.newline,
-            onChanged: (value) {
-              final lastChar = value.substring(value.length - 1);
-              if (lastChar == '\n') {
-                FocusScope.of(context).unfocus();
-              }
-            },
+          ),
+          child: Obx(
+            () => Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                tts_controller.mytext.value,
+                style: const TextStyle(
+                  fontSize: 26,
+                  color: Colors.purple,
+                  fontWeight: FontWeight.w700,
+                  decorationColor: Colors.purple,
+                  decorationThickness: 2,
+                ),
+              ),
+            ),
           ),
         ),
         const Expanded(child: Text("")),
-        Obx(() => stt_controller.is_listeninig.value
-            ? Image.asset("images/talk.PNG")
-            : Image.asset("images/off.PNG")),
-        const SizedBox(height: 35),
-        Obx(() => Text(stt_controller.txttospeaking.value)),
         const SizedBox(height: 35),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            GestureDetector(
-              child: Image.asset("images/listen.PNG"),
-              onTap: () async {
-                print('pressed');
-                await stt_controller.listen();
-              },
-            ),
-            const SizedBox(width: 10),
-            GestureDetector(
-              child: Image.asset("images/talk.PNG"),
-              onTap: () async {
-                debugPrint('speaking .. $txtcon.text');
-                await tts_controller.speak(txtcon.text);
-              },
-            ),
-            const SizedBox(width: 10),
-            Image.asset("images/off.PNG"),
+            listner_button(tts_controller: tts_controller, fstt_con: fstt_con),
+          
+            talker_button(tts_controller: tts_controller),
+           
+            // Image.asset("images/off.PNG"),
           ],
         ),
         const SizedBox(
           height: 40,
         )
       ]),
+    );
+  }
+}
+
+class talker_button extends StatelessWidget {
+  const talker_button({
+    super.key,
+    required this.tts_controller,
+  });
+
+  final TextToSpeechController tts_controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      child: Image.asset("images/talk.PNG"),
+      onTap: () async {
+        tts_controller.mytext.value = "how are you ....";
+        await tts_controller.speak(tts_controller.mytext.value);
+      },
+    );
+  }
+}
+
+class listner_button extends StatelessWidget {
+  const listner_button({
+    super.key,
+    required this.tts_controller,
+    required this.fstt_con,
+  });
+
+  final TextToSpeechController tts_controller;
+  final FlutterSpeechController fstt_con;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      child: Image.asset("images/listen.PNG"),
+      onTap: () async {
+        tts_controller.mytext.value = "speach to text started ...";
+        fstt_con.startListening();
+      },
     );
   }
 }
