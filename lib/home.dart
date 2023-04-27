@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:speak_loud/widgets/google_mic.dart';
+import 'package:speak_loud/controllers/libexample.dart';
 
-import 'controllers/flutter_stt_con.dart';
+// import 'controllers/flutter_stt_con.dart';
+// import 'controllers/stt_controller.dart';
+// import 'controllers/tts_controller.dart';
+import 'bluetooth.dart';
 import 'controllers/stt_controller.dart';
 import 'controllers/tts_controller.dart';
-import 'bluetooth.dart';
-import 'package:speech_to_text/speech_to_text.dart' as stt;
+// import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class HomeScreen extends StatelessWidget {
   final TextEditingController txtcon = TextEditingController();
-
   final TextToSpeechController tts = Get.put(TextToSpeechController());
   final SpeachToTextController stt = Get.put(SpeachToTextController());
 
@@ -26,8 +28,7 @@ class HomeScreen extends StatelessWidget {
             child: Image.asset('images/bluetooth3.png'),
             onTap: () => Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => const BluetoothScreen()),
+                  MaterialPageRoute(builder: (context) => BluetoothScreen()),
                 )),
         actions: const [
           Center(
@@ -81,11 +82,11 @@ class HomeScreen extends StatelessWidget {
               width: 1.0,
             ),
           ),
-          child: Obx(
-            () => Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                tts.mytext.value,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Obx(
+              () => Text(
+                stt.diplayed_text.value,
                 style: const TextStyle(
                   fontSize: 26,
                   color: Colors.purple,
@@ -101,16 +102,18 @@ class HomeScreen extends StatelessWidget {
         const SizedBox(height: 35),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
+          children: [
             GoogleIconButton(
-              buttonIcon: Icon(Icons.mic),
+              buttonIcon: const Icon(Icons.mic),
               buttonText: "TALK",
               handword: "error",
+             
             ),
             GoogleIconButton(
-              buttonIcon: Icon(Icons.waving_hand_outlined),
+              buttonIcon: const Icon(Icons.waving_hand_outlined),
               buttonText: "MOVE HAND",
               handword: "Hello",
+             
             )
           ],
         ),

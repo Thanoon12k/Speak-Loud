@@ -1,40 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_blue/flutter_blue.dart';
+import 'package:get/get.dart';
 
-class BluetoothScreen extends StatefulWidget {
-  const BluetoothScreen({super.key});
+import 'controllers/bluetoothcontroller.dart';
 
-  @override
-  State<BluetoothScreen> createState() => _BluetoothScreenState();
-}
+class BluetoothScreen extends StatelessWidget {
+  final BluetoothController con = Get.put(BluetoothController());
 
-class _BluetoothScreenState extends State<BluetoothScreen> {
+  BluetoothScreen({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: const Color.fromARGB(255, 245, 242, 242),
-        appBar: AppBar(
-          title: Image.asset('images/bluetooth3.png'),
-          actions: const [
-            Center(
-              child: Text(
-                "Disabled Assistance",
-                style: TextStyle(
-                  fontFamily: AutofillHints.birthdayYear,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 22,
-                ),
-              ),
-            ),
-            SizedBox(
-              width: 15,
-            )
-          ],
-          backgroundColor: const Color.fromARGB(255, 241, 147, 38),
-          foregroundColor: Colors.black,
+      appBar: AppBar(
+        title: const Text('Bluetooth Devices'),
+      ),
+      body: Obx(
+        () => ListView.builder(
+          itemCount: con.devicesList.length,
+          itemBuilder: (BuildContext context, int index) {
+            BluetoothDevice device = con.devicesList[index];
+            return ListTile(
+              title: Text(device.name.isEmpty ? 'Unknown Device' : device.name),
+              subtitle: Text(device.id.toString()),
+              onTap: () {
+                // Do something when tapped
+              },
+            );
+          },
         ),
-        body: Container(
-          alignment: Alignment.center,
-          child: Image.asset('images/bluetooth4'),
-        ));
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.search),
+        onPressed: () {
+          con.devicesList.clear();
+          con.scanDevices();
+        },
+      ),
+    );
   }
 }

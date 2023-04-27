@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:speak_loud/controllers/flutter_stt_con.dart';
 import 'package:speak_loud/controllers/tts_controller.dart';
 import 'package:speak_loud/controllers/stt_controller.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 
 class GoogleIconButton extends StatefulWidget {
-  const GoogleIconButton(
-      {Key? key,
-      required this.buttonIcon,
-      required this.buttonText,
-      required this.handword})
-      : super(key: key);
+  GoogleIconButton({
+    Key? key,
+    required this.buttonIcon,
+    required this.buttonText,
+    required this.handword,
+  }) : super(key: key);
 
   final Icon buttonIcon;
   final String buttonText;
@@ -54,24 +56,23 @@ class _GoogleIconButtonState extends State<GoogleIconButton>
     super.dispose();
   }
 
-  void _onTapDown(TapDownDetails details) {
+  void _onTapDown(TapDownDetails details) async {
+    stt.diplayed_text.value = "say hello .";
     setState(() {
       _isPressed = true;
     });
     if (widget.buttonText == "MOVE HAND") {
       tts.speak(widget.handword);
     } else {
-      stt.listen();
+      !stt.is_speech || stt.speech.isListening ? null : stt.startListening();
     }
-
     _animationController.forward();
   }
 
-  void _onTapUp(TapUpDetails details) {
-    setState(() {
-      _isPressed = false;
-    });
-    
+  void _onTapUp(TapUpDetails details) async {
+    stt.speech.isListening ? stt.stopListening() : null;
+
+    setState(() {});
     _animationController.reverse();
   }
 
@@ -115,7 +116,7 @@ class _GoogleIconButtonState extends State<GoogleIconButton>
         Container(
           padding: const EdgeInsets.fromLTRB(15, 0, 15, 30),
           child: DefaultTextStyle(
-            style:const TextStyle(
+            style: const TextStyle(
               color: iconColor,
               fontSize: 14,
               fontWeight: iconWeight,
